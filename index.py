@@ -7,10 +7,10 @@ import threading
 from bs4 import BeautifulSoup
 
 class Downloader():
-    def _download_media(_id):
+    def _download_media(_id, board):
         allowed_formats = ['jpeg', 'png', 'webm', 'mp4', 'jpg']
 
-        base_url = "https://boards.4chan.org/b/thread/%s" % _id
+        base_url = "https://boards.4chan.org/%s/thread/%s" % (board, _id)
 
         req = requests.get(base_url)
 
@@ -39,22 +39,25 @@ class Downloader():
 if __name__ == "__main__":
 
     chan_threads = []
+    chan_board = ''
     save_path = ''
 
     argv = sys.argv[1:]
-    optlist, args = getopt.getopt(argv, 'f:t:', ['folder=', 'threads='])
+    optlist, args = getopt.getopt(argv, 'f:t:b:', ['folder=', 'threads=', 'board='])
     
     for flag, arg in optlist:
         print(flag, arg)
         if flag == '-f' or flag == '--folder':
             save_path = arg
+        if flag == '-b' or flag == '--board':
+            chan_board = arg
         if flag == '-t' or flag == '--threads':
             chan_threads = arg.split(' ')
 
     threads = []
 
     for _id in chan_threads:
-        t = threading.Thread(target=Downloader._download_media, args=[_id])
+        t = threading.Thread(target=Downloader._download_media, args=[_id, chan_board])
         threads.append(t)
         t.start()
 
